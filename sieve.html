@@ -1,0 +1,470 @@
+<title>Sieve of Eratosthenes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Jost:wght@300;400;500&family=Allura&display=swap">
+<style>
+/* ---- Winsome Mundy tokens (from the design system's tokens.json). One dark theme; no light theme. ---- */
+:root {
+  --ink: #120c2e; --ink-glass: #120c2ee0; --night: #1b1442; --night-clear: #1b144200;
+  --panel: #241a57; --line: #3a2e7a; --violet: #9b7bff; --gold: #d4ae6a;
+  --text: #ece8ff; --muted: #b5acd9; --violet-tint: #9b7bff24; --gold-tint: #d4ae6a1a; --alert: #ff9b9b;
+  --font-display: "Poppins", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Jost", "Futura", "Avenir", "Segoe UI", system-ui, sans-serif;
+  --gutter: 20px; --stack-xs: 8px; --stack-sm: 14px; --grid-gap: 20px;
+  --card-pad-sm: 22px; --card-pad: 26px; --card-pad-lg: 30px; --column-gap: 48px;
+  --radius-none: 0; --radius-hairline: 2px;
+  --content-max: 1100px; --rule-mark: 36px; --hairline: 1px;
+  color-scheme: dark;
+}
+html, body { margin: 0; background: var(--night); }
+
+/* Type styles (tokens.json "type" groups) */
+.heading-lg { font-family: var(--font-display); font-size: 2.5rem; line-height: 1.15; font-weight: 700; }
+.heading-sm { font-family: var(--font-display); font-size: 1.05rem; line-height: 1.15; font-weight: 600; }
+.stat { font-family: var(--font-display); font-size: 2.8rem; line-height: 1; font-weight: 600; }
+.brand { font-family: var(--font-display); font-size: 0.95rem; line-height: 1.65; font-weight: 600; letter-spacing: 0.08em; }
+.eyebrow { font-family: var(--font-display); font-size: 0.78rem; line-height: 1.65; font-weight: 500; letter-spacing: 0.3em; }
+.button { font-family: var(--font-display); font-size: 0.85rem; line-height: 1.65; font-weight: 500; letter-spacing: 0.1em; }
+.topic { font-family: var(--font-display); font-size: 0.75rem; line-height: 1.65; font-weight: 500; letter-spacing: 0.22em; }
+.body-sm { font-family: var(--font-body); font-size: 0.95rem; line-height: 1.45; font-weight: 300; }
+.caption { font-family: var(--font-body); font-size: 0.85rem; line-height: 1.65; font-weight: 300; }
+
+/* ---- Components used by this tool, copied from the design system's bundle.css ---- */
+.wm-surface { margin: 0; background: var(--night); color: var(--text); font-family: var(--font-body); font-weight: 300; font-size: 1.075rem; line-height: 1.65; -webkit-font-smoothing: antialiased; color-scheme: dark; }
+.wm-surface *, .wm-surface *::before, .wm-surface *::after { box-sizing: border-box; }
+.wm-surface a { color: var(--violet); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.wm-surface a:hover { color: var(--text); }
+.wm-surface :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: var(--radius-hairline); }
+.wm-wrap { max-width: var(--content-max); margin-inline: auto; padding-inline: var(--gutter); }
+.wm-heading { margin: 0; color: var(--text); text-wrap: balance; }
+.wm-heading.heading-lg { font-size: clamp(1.8rem, 3.6vw, 2.5rem); }
+.wm-muted { color: var(--muted); }
+
+.wm-nav { background: var(--ink-glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: var(--hairline) solid var(--line); }
+.wm-nav__inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 60px; flex-wrap: wrap; }
+.wm-nav__brand, .wm-surface a.wm-nav__brand { color: var(--text); text-decoration: none; text-transform: uppercase; }
+.wm-nav__brand span { color: var(--gold); }
+.wm-surface a.wm-nav__link { color: var(--muted); text-decoration: none; text-transform: uppercase; font-family: var(--font-body); font-size: 0.82rem; letter-spacing: 0.14em; font-weight: 400; }
+.wm-surface a.wm-nav__link:hover { color: var(--gold); }
+
+.wm-btn { display: inline-flex; align-items: center; gap: var(--stack-xs); padding: 12px 20px; border-radius: var(--radius-hairline); border: var(--hairline) solid var(--gold); background: var(--gold); color: var(--ink); text-decoration: none; text-transform: uppercase; cursor: pointer; transition: background .2s, color .2s, border-color .2s; }
+.wm-btn:hover { background: transparent; color: var(--gold); }
+.wm-btn--ghost { background: transparent; color: var(--text); border-color: var(--line); }
+.wm-btn--ghost:hover { border-color: var(--violet); color: var(--violet); }
+.wm-btn:disabled { opacity: 0.4; cursor: default; }
+.wm-btn:disabled:hover { background: var(--gold); color: var(--ink); }
+.wm-btn--ghost:disabled:hover { background: transparent; border-color: var(--line); color: var(--text); }
+
+.wm-eyebrow { display: flex; align-items: center; gap: 12px; margin: 0 0 var(--stack-sm); color: var(--gold); text-transform: uppercase; }
+.wm-eyebrow::before { content: ""; width: var(--rule-mark); height: var(--hairline); background: var(--gold); flex: none; }
+
+.wm-impact { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--hairline); background: var(--line); border: var(--hairline) solid var(--line); }
+.wm-impact__cell { background: var(--night); padding: 22px var(--card-pad-sm); min-width: 0; }
+.wm-impact__value { display: block; color: var(--text); font-variant-numeric: tabular-nums; }
+.wm-impact__value.stat { font-size: clamp(1.8rem, 4vw, 2.4rem); }
+.wm-impact__caption { display: block; margin-top: 10px; color: var(--muted); }
+@media (max-width: 860px) { .wm-impact { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.wm-card { background: var(--panel); border: var(--hairline) solid var(--line); border-radius: var(--radius-none); padding: var(--card-pad); min-width: 0; }
+.wm-card__title { margin: 0 0 var(--stack-xs); color: var(--text); }
+.wm-card__text { margin: 0; color: var(--muted); }
+.wm-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 6px 20px; flex-wrap: wrap; }
+@media (max-width: 560px) { .wm-card { padding: var(--card-pad-sm); } }
+
+.wm-notice { margin: 0 0 16px; padding: 14px 18px; background: var(--panel); border: var(--hairline) solid var(--gold); color: var(--text); font-size: 0.95rem; }
+.wm-notice strong { font-weight: 500; }
+.wm-notice--alert { border-color: var(--alert); }
+.wm-notice--alert strong { color: var(--alert); }
+
+.wm-label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 0.9rem; }
+.wm-input { width: 100%; padding: 10px 12px; font: 400 1rem/1.4 var(--font-body); color: var(--text); background: var(--night); border: var(--hairline) solid var(--muted); border-radius: var(--radius-hairline); font-variant-numeric: tabular-nums; }
+.wm-input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+.wm-explainer { margin-bottom: 24px; }
+.wm-explainer__toggle { display: block; margin-left: auto; padding: 0; background: none; border: none; cursor: pointer; font: 400 0.85rem/1.6 var(--font-body); color: var(--violet); text-decoration: underline; text-underline-offset: 3px; }
+.wm-explainer__toggle:hover { color: var(--text); }
+.wm-explainer__panel { margin-top: 8px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; padding: 20px var(--card-pad); background: var(--panel); border: var(--hairline) solid var(--line); }
+.wm-explainer__label { margin-bottom: 8px; color: var(--gold); text-transform: uppercase; }
+.wm-explainer__text { margin-bottom: 8px; font-size: 0.9rem; color: var(--text); }
+.wm-explainer__note { margin-top: 8px; font-size: 0.8rem; color: var(--muted); }
+.wm-formula { padding: 10px 12px; background: var(--night); border: var(--hairline) solid var(--line); font: 400 0.85rem/1.8 ui-monospace, Menlo, Consolas, monospace; color: var(--text); }
+.wm-formula__or { color: var(--gold); }
+.wm-calc { font-size: 0.9rem; line-height: 2; font-variant-numeric: tabular-nums; }
+.wm-calc__row { display: flex; justify-content: space-between; gap: 12px; }
+.wm-calc__row span:first-child { color: var(--muted); }
+.wm-calc__row span:last-child { font-weight: 500; }
+.wm-calc__total { margin-top: 4px; padding-top: 6px; border-top: var(--hairline) solid var(--gold); font-weight: 600; }
+.wm-calc__total span, .wm-calc__total span:first-child { color: var(--gold); }
+@media (max-width: 640px) { .wm-explainer__panel { grid-template-columns: 1fr; } }
+
+.wm-legend { margin-top: 16px; padding-top: 14px; border-top: var(--hairline) solid var(--line); }
+.wm-legend__label { margin: 0 0 10px; color: var(--gold); text-transform: uppercase; }
+.wm-legend__items { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 0.85rem; color: var(--muted); }
+.wm-legend__item { display: flex; align-items: center; gap: 10px; }
+
+.wm-tool-page { min-height: 100vh; }
+.wm-wrap--tool { max-width: 860px; }
+.wm-tool-page__main { padding-block: 48px 0; }
+.wm-tool-header { margin-bottom: 32px; }
+.wm-tool-header__desc { margin: 10px 0 0; color: var(--muted); }
+.wm-tool-page .wm-card { margin-bottom: 24px; }
+.wm-tool-page .wm-card__title { margin-bottom: var(--stack-sm); }
+.wm-tool-page .wm-card__head { margin-bottom: var(--stack-sm); }
+.wm-tool-page .wm-card__head .wm-card__title { margin: 0; }
+.wm-tool-footer { margin-top: 48px; padding-block: 24px; border-top: var(--hairline) solid var(--line); background: var(--ink); color: var(--muted); }
+@media (max-width: 560px) { .wm-tool-page { font-size: 1rem; } }
+
+/* ---- This tool's own additions ---- */
+.ask { display: flex; flex-wrap: wrap; align-items: end; gap: 16px; }
+.ask__field { flex: 0 1 200px; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.speed { display: flex; align-items: center; gap: 10px; margin-left: auto; color: var(--muted); font-size: 0.9rem; }
+.speed input { width: 120px; accent-color: var(--gold); }
+@media (max-width: 560px) {
+  .controls .wm-btn { flex: 1 1 auto; justify-content: center; }
+  .speed { margin-left: 0; width: 100%; }
+  .speed input { flex: 1; }
+}
+
+.progress { height: 2px; background: var(--line); margin-block: 20px 16px; }
+.progress i { display: block; height: 100%; background: var(--gold); width: 0; transition: width .2s; }
+.say { margin: 0; font-size: 1.2rem; line-height: 1.55; color: var(--text); min-height: 3.1em; max-width: 65ch; }
+.say b { font-family: var(--font-display); font-weight: 500; color: var(--gold); font-variant-numeric: tabular-nums; }
+
+.board { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; }
+.board.dense { grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); }
+.cell {
+  position: relative; aspect-ratio: 1; max-width: 100%;
+  display: grid; place-items: center;
+  font: 500 clamp(0.7rem, 1.6vw, 0.9rem) var(--font-display); font-variant-numeric: tabular-nums;
+  background: var(--night); color: var(--text);
+  border: var(--hairline) solid var(--line); border-radius: var(--radius-none);
+  transition: background .2s, color .2s, border-color .2s;
+}
+.cell.blank { border-style: dashed; color: var(--muted); opacity: .55; }
+.cell.prime { background: var(--gold); border-color: var(--gold); color: var(--ink); font-weight: 600; }
+/* Undecided cells carry a visible border and bright number; crossed-out cells sink into the darkest ground. */
+.cell.cand { border-color: var(--muted); }
+.cell.comp { background: var(--ink); border-color: var(--ink); color: var(--muted); font-weight: 400; }
+.cell.comp:not(.mine) { color: color-mix(in srgb, var(--muted) 55%, var(--ink)); }
+.cell.comp::after {
+  content: ""; position: absolute; left: 14%; right: 14%; top: 50%; height: 2px;
+  background: var(--muted); transform: rotate(-35deg);
+}
+.cell.comp.mine { background: var(--violet-tint); border-color: var(--violet); }
+.cell.comp.mine::after { background: var(--violet); }
+.cell.now { outline: 2px solid var(--violet); outline-offset: 2px; z-index: 1; }
+.cell.base { outline: 2px solid var(--gold); outline-offset: 2px; }
+.cell.base.now { outline-color: var(--violet); }
+
+.sw { position: relative; flex: none; width: 14px; height: 14px; border: var(--hairline) solid var(--muted); background: var(--night); }
+.sw--prime { background: var(--gold); border-color: var(--gold); }
+.sw--comp { background: var(--ink); border-color: var(--ink); }
+.sw--comp::after { content: ""; position: absolute; left: 1px; right: 1px; top: 50%; height: 2px; background: var(--muted); transform: rotate(-35deg); }
+.sw--mine { background: var(--violet-tint); border-color: var(--violet); }
+.sw--now { background: transparent; outline: 2px solid var(--violet); outline-offset: 1px; border-color: transparent; }
+
+.primes { margin: 0; line-height: 1.9; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; color: var(--muted); }
+.primes span { font-family: var(--font-display); font-weight: 500; color: var(--gold); }
+
+.steps { margin: 0; padding-left: 1.3em; display: grid; gap: 10px; color: var(--muted); max-width: 70ch; }
+.steps li::marker { color: var(--gold); font-family: var(--font-display); font-weight: 500; }
+.steps i { color: var(--text); }
+
+@media (prefers-reduced-motion: reduce) { .wm-surface * { transition: none !important; } }
+</style>
+
+<div class="wm-surface wm-tool-page">
+  <nav class="wm-nav" aria-label="Site">
+    <div class="wm-wrap wm-wrap--tool wm-nav__inner">
+      <a class="wm-nav__brand brand" href="https://winsomemundy.com/">Winsome <span>Mundy</span></a>
+      <a class="wm-nav__link" href="https://winsomemundy.com/#tools">Student tools</a>
+    </div>
+  </nav>
+
+  <main class="wm-wrap wm-wrap--tool wm-tool-page__main">
+    <header class="wm-tool-header">
+      <p class="wm-eyebrow eyebrow">Number theory · Prime numbers</p>
+      <h1 class="wm-heading heading-lg">Sieve of Eratosthenes</h1>
+      <p class="wm-tool-header__desc">Enter a number and watch every prime up to it appear, one step at a time.</p>
+    </header>
+
+    <form class="wm-card" id="ask" novalidate>
+      <h2 class="wm-card__title heading-sm">Your number</h2>
+      <div class="ask">
+        <div class="ask__field">
+          <label class="wm-label" for="n">Find all primes up to (2 to 1,000)</label>
+          <input class="wm-input" id="n" type="number" inputmode="numeric" min="2" max="1000" step="1" value="50">
+        </div>
+        <button class="wm-btn button" type="submit">Build the sieve</button>
+      </div>
+    </form>
+
+    <div class="wm-notice wm-notice--alert" id="err" role="alert" hidden></div>
+
+    <section class="wm-card">
+      <div class="wm-card__head">
+        <h2 class="wm-card__title heading-sm">Step by step</h2>
+        <span class="topic wm-muted" id="stepno">Step 0</span>
+      </div>
+      <div class="controls">
+        <button class="wm-btn button" id="step" type="button" title="Next step (→)">Next step</button>
+        <button class="wm-btn wm-btn--ghost button" id="play" type="button" title="Play or pause (Space)">Play</button>
+        <button class="wm-btn wm-btn--ghost button" id="back" type="button" title="Previous step (←)">Back</button>
+        <button class="wm-btn wm-btn--ghost button" id="nextPrime" type="button">Next prime</button>
+        <button class="wm-btn wm-btn--ghost button" id="finish" type="button">Finish</button>
+        <button class="wm-btn wm-btn--ghost button" id="reset" type="button">Reset</button>
+        <label class="speed" for="spd">Speed <input id="spd" type="range" min="1" max="10" value="5"></label>
+      </div>
+      <div class="progress"><i id="bar"></i></div>
+      <p class="say" id="say" aria-live="polite"></p>
+    </section>
+
+    <div class="wm-impact" style="margin-bottom:24px">
+      <div class="wm-impact__cell"><b class="wm-impact__value stat" id="sP">–</b><span class="wm-impact__caption body-sm">Current prime p</span></div>
+      <div class="wm-impact__cell"><b class="wm-impact__value stat" id="sPrimes">0</b><span class="wm-impact__caption body-sm">Primes found</span></div>
+      <div class="wm-impact__cell"><b class="wm-impact__value stat" id="sComp">0</b><span class="wm-impact__caption body-sm">Crossed out</span></div>
+      <div class="wm-impact__cell"><b class="wm-impact__value stat" id="sLeft">0</b><span class="wm-impact__caption body-sm">Still unmarked</span></div>
+    </div>
+
+    <section class="wm-card">
+      <div class="wm-card__head">
+        <h2 class="wm-card__title heading-sm">The sieve</h2>
+        <span class="topic wm-muted" id="limits"></span>
+      </div>
+      <div class="board" id="board"></div>
+      <div class="wm-legend">
+        <p class="wm-legend__label topic">Key</p>
+        <div class="wm-legend__items">
+          <span class="wm-legend__item"><i class="sw"></i>Not yet decided</span>
+          <span class="wm-legend__item"><i class="sw sw--prime"></i>Prime</span>
+          <span class="wm-legend__item"><i class="sw sw--mine"></i>Crossed out by the current prime</span>
+          <span class="wm-legend__item"><i class="sw sw--comp"></i>Crossed out earlier</span>
+          <span class="wm-legend__item"><i class="sw sw--now"></i>Being examined</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="wm-card" id="result" hidden>
+      <h2 class="wm-card__title heading-sm" id="resultTitle"></h2>
+      <p class="primes" id="primes"></p>
+    </section>
+
+    <section class="wm-card">
+      <h2 class="wm-card__title heading-sm">The method</h2>
+      <ol class="steps">
+        <li>List every whole number from 2 to <i>n</i>. The number 1 is left out because it is not prime.</li>
+        <li>Let <i>p</i> = 2, the first prime.</li>
+        <li>Cross out the multiples of <i>p</i>, starting at <i>p</i>² and counting up in steps of <i>p</i>.</li>
+        <li>Move <i>p</i> to the next number that is still unmarked. It is prime, because no smaller prime divides it.</li>
+        <li>Repeat while <i>p</i>² ≤ <i>n</i>. Once <i>p</i>² is larger than <i>n</i>, stop: every number still unmarked is prime.</li>
+      </ol>
+    </section>
+
+    <div class="wm-explainer">
+      <button class="wm-explainer__toggle" id="exToggle" type="button" aria-expanded="false" aria-controls="exPanel">Why start at p² and stop at √n? ▾</button>
+      <div class="wm-explainer__panel" id="exPanel" hidden>
+        <div>
+          <div class="wm-explainer__label topic">The rule</div>
+          <div class="wm-explainer__text">Cross out multiples of each prime <em>p</em>:</div>
+          <div class="wm-formula">start at p × p<br><span class="wm-formula__or">— and —</span><br>stop once p × p &gt; n</div>
+          <div class="wm-explainer__note">Any multiple smaller than p², such as 3 × p, has a smaller prime factor and was crossed out earlier. Every composite number up to n has a prime factor no larger than √n.</div>
+        </div>
+        <div>
+          <div class="wm-explainer__label topic">Your sieve</div>
+          <div class="wm-explainer__text wm-muted" id="exFor"></div>
+          <div class="wm-calc" id="exCalc"></div>
+          <div class="wm-explainer__note">Only these primes cross anything out. Every other prime survives without being used.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="wm-tool-footer caption">
+    <div class="wm-wrap wm-wrap--tool">
+      A free student tool by <a href="https://winsomemundy.com/#tools">Winsome Mundy</a>. More tools at winsomemundy.com.
+    </div>
+  </footer>
+</div>
+
+<script>
+(() => {
+  document.documentElement.lang = 'en';
+  const MAX = 1000;
+  const $ = id => document.getElementById(id);
+  let n = 0, steps = [], idx = 0, timer = null, cells = [];
+
+  // Build the full list of steps up front, so Back can replay to any point.
+  function buildSteps(n) {
+    const out = [{ t: 'intro' }];
+    const marked = new Array(n + 1).fill(false);
+    const by = new Array(n + 1).fill(0);
+    for (let p = 2; p <= n; p++) {
+      if (marked[p]) continue;
+      if (p * p > n) { out.push({ t: 'stop', p }); break; }
+      out.push({ t: 'prime', p });
+      for (let m = p * p; m <= n; m += p) {
+        out.push({ t: 'cross', p, m, k: m / p, again: marked[m] ? by[m] : 0 });
+        if (!marked[m]) { marked[m] = true; by[m] = p; }
+      }
+      out.push({ t: 'doneP', p });
+    }
+    out.push({ t: 'finish' });
+    return out;
+  }
+
+  const fmt = x => x.toLocaleString('en-US');
+
+  function setup(newN) {
+    stop();
+    n = newN;
+    steps = buildSteps(n);
+    const board = $('board');
+    board.classList.toggle('dense', n > 100);
+    board.innerHTML = '';
+    cells = [];
+    for (let i = 1; i <= n; i++) {
+      const c = document.createElement('div');
+      c.className = 'cell' + (i === 1 ? ' blank' : '');
+      c.textContent = i;
+      if (i === 1) c.title = '1 is not prime';
+      board.appendChild(c);
+      cells[i] = c;
+    }
+    const root = Math.sqrt(n);
+    $('limits').textContent = `n = ${fmt(n)} · √n ≈ ${root.toFixed(2).replace(/\.00$/, '')}`;
+    const sievers = steps.filter(s => s.t === 'prime').map(s => s.p);
+    $('exFor').textContent = `For n = ${fmt(n)}`;
+    $('exCalc').innerHTML =
+      `<div class="wm-calc__row"><span>√${fmt(n)}</span><span>≈ ${root.toFixed(2)}</span></div>` +
+      `<div class="wm-calc__row"><span>Primes ≤ √n</span><span>${sievers.length}</span></div>` +
+      `<div class="wm-calc__row wm-calc__total"><span>Sieve with</span><span>${sievers.length ? sievers.join(', ') : 'none'}</span></div>`;
+    goTo(0);
+  }
+
+  // Recompute the board for step i by replaying from the start.
+  function goTo(i) {
+    idx = Math.max(0, Math.min(i, steps.length - 1));
+    const state = new Array(n + 1).fill('cand');
+    const by = new Array(n + 1).fill(0);
+    let curP = null, now = null;
+    for (let j = 0; j <= idx; j++) {
+      const s = steps[j];
+      now = null;
+      if (s.t === 'prime') { state[s.p] = 'prime'; curP = s.p; now = s.p; }
+      else if (s.t === 'cross') { if (state[s.m] !== 'comp') { state[s.m] = 'comp'; by[s.m] = s.p; } curP = s.p; now = s.m; }
+      else if (s.t === 'doneP') { curP = s.p; }
+      else if (s.t === 'stop') { curP = null; now = s.p; }
+      else if (s.t === 'finish') { for (let k = 2; k <= n; k++) if (state[k] === 'cand') state[k] = 'prime'; curP = null; }
+    }
+    let primes = 0, comp = 0, left = 0;
+    for (let k = 2; k <= n; k++) {
+      const c = cells[k];
+      c.className = 'cell ' + state[k];
+      if (state[k] === 'comp' && curP && by[k] === curP) c.classList.add('mine');
+      if (k === curP && state[k] === 'prime') c.classList.add('base');
+      if (k === now) c.classList.add('now');
+      c.title = state[k] === 'comp' ? `${k} = ${by[k]} × ${k / by[k]}` : state[k] === 'prime' ? `${k} is prime` : `${k} not decided yet`;
+      if (state[k] === 'prime') primes++; else if (state[k] === 'comp') comp++; else left++;
+    }
+    $('sP').textContent = curP ?? '–';
+    $('sPrimes').textContent = fmt(primes);
+    $('sComp').textContent = fmt(comp);
+    $('sLeft').textContent = fmt(left);
+    $('stepno').textContent = `Step ${fmt(idx)} of ${fmt(steps.length - 1)}`;
+    $('bar').style.width = (steps.length > 1 ? (idx / (steps.length - 1)) * 100 : 100) + '%';
+    $('say').innerHTML = narrate(steps[idx], primes);
+    if (now && cells[now]) cells[now].scrollIntoView({ block: 'nearest', inline: 'nearest' });
+
+    const atEnd = idx === steps.length - 1;
+    $('back').disabled = idx === 0;
+    $('step').disabled = $('finish').disabled = $('nextPrime').disabled = $('play').disabled = atEnd;
+    if (atEnd) { stop(); showResult(state); } else $('result').hidden = true;
+  }
+
+  const B = x => `<b>${x}</b>`;
+  function narrate(s, primes) {
+    const root = Math.sqrt(n);
+    switch (s.t) {
+      case 'intro':
+        if (n === 2) return `With n = ${B(2)}, the list holds only the number ${B(2)}. It is unmarked, and 2 is the smallest prime.`;
+        return `We list every number from ${B(2)} to ${B(fmt(n))}. None are marked yet. We only need to sieve with primes up to √${fmt(n)} ≈ ${B(root.toFixed(2))}.`;
+      case 'prime':
+        return `${B(s.p)} is the smallest unmarked number, so it is prime. Its square, ${B(s.p * s.p)}, is no more than ${fmt(n)}, so we cross out its multiples starting there.`;
+      case 'cross':
+        return s.again
+          ? `${B(s.m)} = ${s.p} × ${s.k}. It was already crossed out as a multiple of ${B(s.again)}, so it stays crossed out.`
+          : `${B(s.m)} = ${s.p} × ${s.k}, a multiple of ${s.p}, so it is not prime. Cross it out.`;
+      case 'doneP':
+        return `Every multiple of ${B(s.p)} up to ${fmt(n)} is now crossed out. Next, find the smallest number after ${s.p} that is still unmarked.`;
+      case 'stop':
+        return `The next unmarked number is ${B(s.p)}, but ${s.p}² = ${B(s.p * s.p)} is greater than ${fmt(n)}. Every composite number up to ${fmt(n)} is already crossed out, so we stop sieving.`;
+      case 'finish':
+        return `Done. Every number that was never crossed out is prime: ${B(primes)} ${primes === 1 ? 'prime' : 'primes'} up to ${fmt(n)}.`;
+    }
+  }
+
+  function showResult(state) {
+    const list = [];
+    for (let k = 2; k <= n; k++) if (state[k] === 'prime') list.push(k);
+    $('resultTitle').textContent = `${list.length} ${list.length === 1 ? 'prime' : 'primes'} up to ${fmt(n)}`;
+    $('primes').innerHTML = list.map(p => `<span>${p}</span>`).join(' · ');
+    $('result').hidden = false;
+  }
+
+  // Playback
+  const delay = () => 1100 / Math.pow(1.6, +$('spd').value - 1);
+  function play() {
+    if (idx >= steps.length - 1) return;
+    $('play').textContent = 'Pause';
+    timer = setTimeout(function tick() {
+      goTo(idx + 1);
+      if (idx < steps.length - 1) timer = setTimeout(tick, delay()); else stop();
+    }, delay());
+  }
+  function stop() { clearTimeout(timer); timer = null; $('play').textContent = 'Play'; }
+
+  $('step').onclick = () => { stop(); goTo(idx + 1); };
+  $('back').onclick = () => { stop(); goTo(idx - 1); };
+  $('play').onclick = () => timer ? stop() : play();
+  $('finish').onclick = () => { stop(); goTo(steps.length - 1); };
+  $('reset').onclick = () => { stop(); goTo(0); };
+  $('nextPrime').onclick = () => {
+    stop();
+    let j = idx + 1;
+    while (j < steps.length - 1 && !['prime', 'stop'].includes(steps[j].t)) j++;
+    goTo(j);
+  };
+  $('spd').oninput = () => { if (timer) { stop(); play(); } };
+
+  $('exToggle').onclick = () => {
+    const t = $('exToggle'), open = t.getAttribute('aria-expanded') !== 'true';
+    t.setAttribute('aria-expanded', String(open));
+    $('exPanel').hidden = !open;
+    t.textContent = 'Why start at p² and stop at √n? ' + (open ? '▴' : '▾');
+  };
+
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || (e.target.tagName === 'BUTTON' && e.key === ' ')) return;
+    if (e.key === 'ArrowRight') { e.preventDefault(); $('step').click(); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); $('back').click(); }
+    else if (e.key === ' ') { e.preventDefault(); $('play').click(); }
+  });
+
+  $('ask').addEventListener('submit', e => {
+    e.preventDefault();
+    const raw = $('n').value.trim();
+    const v = Number(raw);
+    let msg = '';
+    if (raw === '') msg = 'No number entered. Type a whole number from <strong>2</strong> to <strong>1,000</strong>.';
+    else if (!Number.isInteger(v)) msg = `${raw} is not a whole number. Use one such as <strong>50</strong>.`;
+    else if (v < 2) msg = `${raw} is too small. The number must be <strong>2</strong> or greater.`;
+    else if (v > MAX) msg = `${fmt(v)} is too large for a readable grid. Use a number up to <strong>1,000</strong>.`;
+    $('err').innerHTML = msg;
+    $('err').hidden = !msg;
+    if (!msg) setup(v);
+  });
+
+  setup(50);
+})();
+</script>

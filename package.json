@@ -1,0 +1,11 @@
+{
+  "name": "sieve-of-eratosthenes",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "@winsomemundy/design-system": "github:winsomemundy/design-system#v1.4.0"
+  }
+}
