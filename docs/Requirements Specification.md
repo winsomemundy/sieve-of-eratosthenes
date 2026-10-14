@@ -172,11 +172,19 @@ The app is one static HTML page with inline JavaScript and no framework; `index.
 
 To release a change:
 
-1. Edit `index.html`.
-2. Run `npm run artifact` and republish the artifact.
-3. Commit and push to `main` on GitHub (`winsomemundy/sieve-of-eratosthenes`, public). Vercel builds and deploys to sieve.winsomemundy.com.
+1. **Edit `index.html`.** It is the only file to change by hand.
+2. **Rebuild the artifact page.** Run `npm run artifact` in the project folder. It regenerates `sieve.html` from `index.html`.
+3. **Republish the artifact.** Publish `sieve.html` to the existing artifact link so the link stays the same.
+4. **Commit and push.** Commit `index.html` and `sieve.html`, then push to `main` in `winsomemundy/sieve-of-eratosthenes` (public) on GitHub.
+5. **Check the live site.** Vercel builds and deploys automatically after the push, usually within a minute. Open sieve.winsomemundy.com and confirm the change appears.
 
-To take a new design system release, change the `#v1.4.0` tag in `package.json`, run `npm install`, then follow the steps above.
+To take a new design system release:
+
+1. Change the `#v1.4.0` tag in `package.json` to the new release tag.
+2. Run `npm install`.
+3. Follow the release steps above, starting at step 2.
+
+The same steps are in `docs/Instructions for Sieve of Eratosthenes.docx` in the repository.
 
 ## Acceptance criteria
 
