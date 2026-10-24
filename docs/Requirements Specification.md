@@ -180,9 +180,9 @@ To release a change:
 
 To take a new design system release:
 
-1. Change the `#v1.4.0` tag in `package.json` to the new release tag.
-2. Run `npm install`.
-3. Follow the release steps above, starting at step 2.
+1. Run `npm install github:winsomemundy/design-system#<new tag>` (for example `#v1.5.0`). This updates the tag in `package.json` and the pinned commit in `package-lock.json` together. Changing the tag in `package.json` and running a plain `npm install` is not enough: the lockfile keeps the old commit and npm reports "up to date".
+2. Check the version: `node_modules/@winsomemundy/design-system/package.json` should show the new release.
+3. Follow the release steps above, starting at step 2, and commit `package.json` and `package-lock.json` along with `sieve.html`.
 
 The same steps are in `docs/Instructions for Sieve of Eratosthenes.docx` in the repository.
 

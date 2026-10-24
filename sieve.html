@@ -333,6 +333,37 @@
   .wm-values__grid li:nth-child(2n+1) { border-left: 0; padding-left: 0; }
 }
 
+/* Role panels: two side-by-side panels, one per role */
+.wm-roles__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--grid-gap); margin-top: 32px; }
+.wm-role-panel { --wm-accent: var(--violet); display: flex; flex-direction: column; gap: 16px; padding: var(--card-pad-lg); background: var(--panel); border: var(--hairline) solid var(--line); min-width: 0; }
+.wm-role-panel--educator { --wm-accent: var(--gold); }
+.wm-role-panel__label { display: flex; align-items: center; gap: 10px; margin: 0; font-family: var(--font-display); font-weight: 500; font-size: 0.78rem; line-height: 1.4; letter-spacing: 0.2em; text-transform: uppercase; color: var(--wm-accent); }
+.wm-role-panel__label::before { content: ""; flex: none; width: 8px; height: 8px; background: var(--wm-accent); transform: rotate(45deg); }
+.wm-role-panel__thesis { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: clamp(1.35rem, 2.4vw, 1.7rem); line-height: 1.2; color: var(--text); text-wrap: balance; }
+.wm-role-panel__body { margin: 0; color: var(--muted); }
+.wm-role-panel__proof { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 4px 0 0; padding-top: 18px; border-top: var(--hairline) solid var(--line); }
+.wm-role-panel__proof div { min-width: 0; }
+.wm-role-panel__proof dt { font-family: var(--font-display); font-weight: 600; font-size: 1.5rem; line-height: 1.1; color: var(--wm-accent); font-variant-numeric: tabular-nums; }
+.wm-role-panel__proof dd { margin: 6px 0 0; color: var(--muted); font-size: 0.86rem; line-height: 1.4; }
+.wm-role-panel .wm-quote { margin-top: 6px; }
+.wm-surface a.wm-role-panel__link { margin-top: auto; padding-top: 4px; font-family: var(--font-display); font-weight: 500; font-size: 0.82rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; color: var(--wm-accent); }
+.wm-surface a.wm-role-panel__link:hover { color: var(--text); }
+@media (max-width: 900px) { .wm-roles__grid { grid-template-columns: 1fr; } }
+@media (max-width: 560px) {
+  .wm-role-panel { padding: var(--card-pad-sm); }
+  .wm-role-panel__proof { grid-template-columns: 1fr; gap: 12px; }
+  .wm-role-panel__proof div { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; align-items: baseline; }
+  .wm-role-panel__proof dd { margin: 0; }
+}
+
+/* Quote: a real person's words, verbatim, with who they are */
+.wm-quote { position: relative; margin: 0; padding: 20px 0 0 30px; border-top: var(--hairline) solid var(--line); }
+.wm-quote::before { content: "\201C"; position: absolute; left: 0; top: 10px; font-family: var(--font-display); font-weight: 600; font-size: 2.4rem; line-height: 1; color: var(--wm-accent, var(--gold)); }
+.wm-quote blockquote { margin: 0; }
+.wm-quote p { margin: 0; color: var(--text); font-style: italic; font-size: 0.98rem; line-height: 1.6; }
+.wm-quote figcaption { margin-top: 10px; color: var(--muted); font-size: 0.85rem; }
+.wm-quote figcaption::before { content: "— "; }
+
 @media (prefers-reduced-motion: reduce) { .wm-surface * { transition: none !important; } }
 
 
