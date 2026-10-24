@@ -433,7 +433,44 @@ html, body { margin: 0; background: var(--night); }
 .steps li::marker { color: var(--gold); font-family: var(--font-display); font-weight: 500; }
 .steps i { color: var(--text); }
 
+.ws-offer { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-top: 20px; padding-top: 20px; border-top: var(--hairline) solid var(--line); }
+.ws-offer label { display: flex; align-items: center; gap: 8px; color: var(--text); font-size: 0.95rem; cursor: pointer; }
+.ws-offer input { width: 16px; height: 16px; accent-color: var(--gold); }
+.ws-offer p { flex-basis: 100%; margin: 0; font-size: 0.9rem; }
+@media (max-width: 560px) { .ws-offer .wm-btn { flex: 1 1 100%; justify-content: center; } }
+
 @media (prefers-reduced-motion: reduce) { .wm-surface * { transition: none !important; } }
+
+/* ---- Printable worksheet: built from the student's number, shown only when printing ---- */
+.ws { display: none; }
+@media print {
+  @page { size: auto; margin: 14mm; }
+  html, body, .wm-surface { background: #fff !important; }
+  .wm-tool-page { display: none !important; }
+  .ws { display: block; color: #000; font: 10.5pt/1.45 var(--font-body); }
+  .ws h1, .ws h2 { font-family: var(--font-display); font-weight: 600; margin: 0; color: #000; }
+  .ws h1 { font-size: 18pt; }
+  .ws h2 { font-size: 12pt; margin: 11pt 0 4pt; }
+  .ws p { margin: 0 0 4pt; }
+  .ws-top { display: flex; justify-content: space-between; align-items: end; gap: 12pt; padding-bottom: 6pt; border-bottom: 1.5pt solid #000; }
+  .ws-sub { font-size: 9pt; letter-spacing: .08em; text-transform: uppercase; color: #444; }
+  .ws-fill { display: flex; gap: 16pt; font-size: 10pt; }
+  .ws-fill span { display: inline-block; width: 120pt; border-bottom: .75pt solid #000; }
+  .ws-fill span.short { width: 70pt; }
+  .ws ol { margin: 0; padding-left: 16pt; }
+  .ws ol li { margin-bottom: 2pt; }
+  .ws-grid { display: grid; grid-template-columns: repeat(var(--cols), 1fr); max-width: calc(var(--cols) * 10mm); border-top: .75pt solid #000; border-left: .75pt solid #000; }
+  .ws-grid div { aspect-ratio: 1; display: grid; place-items: center; border-right: .75pt solid #000; border-bottom: .75pt solid #000; font: 500 var(--fs) var(--font-display); font-variant-numeric: tabular-nums; break-inside: avoid; }
+  .ws-grid .one { background: #ddd; color: #666; }
+  .ws-note { font-size: 9pt; color: #444; margin-top: 4pt !important; }
+  .ws-q { break-inside: avoid; margin-bottom: 6pt; }
+  .ws-q .line { border-bottom: .75pt solid #000; height: 17pt; }
+  .ws-key, .ws-qs.ws-break { break-before: page; }
+  .ws-key dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 5pt 14pt; }
+  .ws-key dt { font-weight: 600; }
+  .ws-key dd { margin: 0; overflow-wrap: anywhere; }
+  .ws-foot { margin-top: 6pt; font-size: 8.5pt; color: #555; }
+}
 </style>
 
 <div class="wm-surface">
@@ -460,6 +497,11 @@ html, body { margin: 0; background: var(--night); }
           <input class="wm-input" id="n" type="number" inputmode="numeric" min="2" max="1000" step="1" value="50">
         </div>
         <button class="wm-btn button" type="submit">Build the sieve</button>
+      </div>
+      <div class="ws-offer">
+        <button class="wm-btn wm-btn--ghost button" id="print" type="button">Print a worksheet for 50</button>
+        <label for="wsKey"><input id="wsKey" type="checkbox"> Include the answer key</label>
+        <p class="wm-muted">Students sieve the grid by hand. To download it, choose “Save as PDF” in the print window.</p>
       </div>
     </form>
 
@@ -550,6 +592,8 @@ html, body { margin: 0; background: var(--night); }
   </footer>
 </div>
 
+<div class="ws" id="ws" aria-hidden="true"></div>
+
 <script>
 document.documentElement.lang = 'en';
 (() => {
@@ -597,6 +641,7 @@ document.documentElement.lang = 'en';
     const root = Math.sqrt(n);
     $('limits').textContent = `n = ${fmt(n)} · √n ≈ ${root.toFixed(2).replace(/\.00$/, '')}`;
     const sievers = steps.filter(s => s.t === 'prime').map(s => s.p);
+    $('print').textContent = `Print a worksheet for ${fmt(n)}`;
     $('exFor').textContent = `For n = ${fmt(n)}`;
     $('exCalc').innerHTML =
       `<div class="wm-calc__row"><span>√${fmt(n)}</span><span>≈ ${root.toFixed(2)}</span></div>` +
@@ -699,6 +744,82 @@ document.documentElement.lang = 'en';
     goTo(j);
   };
   $('spd').oninput = () => { if (timer) { stop(); play(); } };
+
+  // Printable worksheet for the current n: a blank grid to sieve by hand, questions, and an optional answer key.
+  function worksheet(withKey) {
+    const root = Math.sqrt(n);
+    const sievers = steps.filter(s => s.t === 'prime').map(s => s.p);
+    const primes = [];
+    const marked = new Array(n + 1).fill(false);
+    for (let p = 2; p <= n; p++) {
+      if (marked[p]) continue;
+      primes.push(p);
+      for (let m = p * p; m <= n; m += p) marked[m] = true;
+    }
+    const cols = n <= 100 ? 10 : 20;
+    const fs = n <= 100 ? '13pt' : n < 1000 ? '8.5pt' : '7.5pt';
+    // A Letter page leaves about 50 mm for the grid beside the instructions and questions. A grid that fills page 1
+    // sends the questions to a fresh page; one that runs over several pages lets them follow straight after it.
+    const gridMm = Math.ceil(n / cols) * (cols === 10 ? 10 : 9.1);
+    const fits = gridMm <= 50 || gridMm > 160;
+    const rootText = Number.isInteger(root) ? `= ${root}` : `≈ ${root.toFixed(2)}`;
+    let grid = '';
+    for (let i = 1; i <= n; i++) grid += i === 1 ? '<div class="one">1</div>' : `<div>${i}</div>`;
+    const line = '<div class="line"></div>';
+    const firstStop = primes.find(p => p * p > n);
+    $('ws').innerHTML = `
+      <div class="ws-top">
+        <div><div class="ws-sub">Number theory · Prime numbers</div><h1>Sieve of Eratosthenes: primes up to ${fmt(n)}</h1></div>
+        <div class="ws-fill">Name <span></span> Date <span class="short"></span></div>
+      </div>
+      <h2>Instructions</h2>
+      <ol>
+        <li>The number 1 is shaded because it is not prime.</li>
+        <li>Circle 2, the first prime. Cross out every multiple of 2, starting at 2² = 4.</li>
+        <li>Find the smallest number that is not circled or crossed out. Circle it: it is prime. Cross out its multiples, starting at its square.</li>
+        <li>Keep going while the square of your prime is no more than ${fmt(n)}. √${fmt(n)} ${rootText}, so you only cross out multiples of primes no greater than ${Math.floor(root)}.</li>
+        <li>When you stop, circle every number that is still unmarked. Every circled number is prime.</li>
+      </ol>
+      <h2>The grid</h2>
+      <div class="ws-grid" style="--cols:${cols};--fs:${fs}">${grid}</div>
+      <p class="ws-note">${fmt(n)} numbers in rows of ${cols}.</p>
+      <section class="ws-qs${fits ? '' : ' ws-break'}">
+      <h2>Questions</h2>
+      <div class="ws-q"><p>1. Which primes did you use to cross out multiples?</p>${line}</div>
+      <div class="ws-q"><p>2. How many primes are there from 2 to ${fmt(n)}?</p>${line}</div>
+      <div class="ws-q"><p>3. What is the largest prime up to ${fmt(n)}?</p>${line}</div>
+      ${n >= 5 ? `<div class="ws-q"><p>4. Twin primes are two primes that differ by 2, such as 3 and 5. List any other twin-prime pairs on your grid, or write “none”.</p>${line}</div>` : ''}
+      <div class="ws-q"><p>${n >= 5 ? 5 : 4}. Explain why you could stop crossing out once a prime's square was greater than ${fmt(n)}.</p>${line}${line}</div>
+      <p class="ws-foot">A free student tool by Winsome Mundy · sieve.winsomemundy.com</p>
+      </section>
+      ${withKey ? `
+      <section class="ws-key">
+        <div class="ws-top"><div><div class="ws-sub">For teachers</div><h1>Answer key: primes up to ${fmt(n)}</h1></div></div>
+        <h2>Answers</h2>
+        <dl>
+          <dt>1. Primes used</dt><dd>${sievers.length ? sievers.join(', ') : 'None: no prime squared is ' + fmt(n) + ' or less'}</dd>
+          <dt>2. How many</dt><dd>${primes.length}</dd>
+          <dt>3. Largest</dt><dd>${primes[primes.length - 1]}</dd>
+          ${n >= 5 ? `<dt>4. Twin primes</dt><dd>${twins(primes)}</dd>` : ''}
+          <dt>${n >= 5 ? 5 : 4}. Why stop</dt><dd>Every composite number up to ${fmt(n)} has a prime factor no larger than √${fmt(n)} ${rootText}, so it was already crossed out.${firstStop ? ` The next prime, ${firstStop}, has ${firstStop}² = ${fmt(firstStop * firstStop)}, which is greater than ${fmt(n)}.` : ''}</dd>
+        </dl>
+        <h2>All ${primes.length} primes up to ${fmt(n)}</h2>
+        <p>${primes.join(', ')}</p>
+      </section>` : ''}
+`;
+  }
+  function twins(primes) {
+    const pairs = [];
+    for (let i = 1; i < primes.length; i++) if (primes[i] - primes[i - 1] === 2 && primes[i - 1] !== 3) pairs.push(`${primes[i - 1]} and ${primes[i]}`);
+    return pairs.length ? pairs.join('; ') : `None besides 3 and 5`;
+  }
+  $('print').onclick = () => {
+    worksheet($('wsKey').checked);
+    const title = document.title;
+    document.title = `Sieve of Eratosthenes worksheet - primes up to ${n}`;
+    window.addEventListener('afterprint', () => { document.title = title; }, { once: true });
+    window.print();
+  };
 
   $('exToggle').onclick = () => {
     const t = $('exToggle'), open = t.getAttribute('aria-expanded') !== 'true';

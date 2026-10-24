@@ -104,7 +104,7 @@ Additional rules:
 
 ## Display
 
-The page must show, top to bottom: the input card, the step card, a row of four counts, the number grid with its key, the result (once finished), the method, and an explainer.
+The page must show, top to bottom: the input card, the step card, a row of four counts, the number grid with its key, the result (once finished), the method, and an explainer. The input card also offers the printable worksheet.
 
 **Step card.** It must show "Step i of N", a progress bar filled to i ÷ N, and the current step's sentence, with the numbers in it highlighted.
 
@@ -127,6 +127,16 @@ A key under the grid must name the five main states with matching swatches.
 **Result.** After the last step, a card must show "N primes up to n" (singular for 1) and the primes separated by " · ". Leaving the last step must hide it.
 
 **Method and explainer.** A card must list the five steps of the method. A collapsed explainer, "Why start at p² and stop at √n?", must state the rule and work it for the current n: √n, how many primes are at most √n, and which primes do the sieving.
+
+**Printable worksheet.** The input card must offer "Print a worksheet for n", labelled with the n currently on the grid, an "Include the answer key" checkbox (off by default), and the hint that "Save as PDF" in the print window downloads it. The button opens the browser's print window with a black-on-white sheet built for that n; nothing else on the page prints. The sheet must contain:
+
+- a header with the topic, the title "Sieve of Eratosthenes: primes up to n", and Name and Date lines
+- the method as pencil instructions (circle primes, cross out multiples from p²), with √n worked for this n (shown as "= k" when n is a perfect square)
+- a grid of 1 to n with 1 shaded: rows of 10 with cells at most 10 mm for n ≤ 100, rows of 20 above 100
+- five questions with answer lines: the primes used to sieve, how many primes, the largest prime, other twin-prime pairs (left out when n < 5), and why sieving can stop once p² > n
+- the footer "A free student tool by Winsome Mundy · sieve.winsomemundy.com"
+
+The questions stay on page 1 when the grid is at most 5 rows (n ≤ 50). A grid that fills page 1 sends them to a fresh page, and a grid that runs over several pages lets them follow straight after it. No question splits across pages. With the key, a separate final page lists each answer for this n and all its primes. The print window suggests the file name "Sieve of Eratosthenes worksheet - primes up to n".
 
 ## Design system conformance
 
@@ -201,6 +211,7 @@ A release is acceptable when every check below passes; all passed for the build 
 | AC-7 | Tab through the page. | NF-1, NF-2 | Every control gets the gold outline in order. |
 | AC-8 | Step 200 times at n = 1,000. | NF-7 | Under 1 second in total. |
 | AC-9 | Load sieve.winsomemundy.com and the artifact. | NF-10, design system | Both load with no console errors and look the same. |
+| AC-10 | Print the worksheet at n = 50 with the key, and at n = 100 and n = 1,000. | Printable worksheet | 50: one worksheet page plus the key (15 primes; sieved with 2, 3, 5, 7). 100: grid on page 1, questions on page 2. 1,000: questions follow the grid on page 3; key lists 168 primes. |
 
 ## Out of scope and open issues
 
