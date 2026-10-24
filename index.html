@@ -105,7 +105,9 @@ html, body { margin: 0; background: var(--night); }
   .ws ol li { margin-bottom: 2pt; }
   .ws-grid { display: grid; grid-template-columns: repeat(var(--cols), 1fr); max-width: calc(var(--cols) * 10mm); border-top: .75pt solid #000; border-left: .75pt solid #000; }
   .ws-grid div { aspect-ratio: 1; display: grid; place-items: center; border-right: .75pt solid #000; border-bottom: .75pt solid #000; font: 500 var(--fs) var(--font-display); font-variant-numeric: tabular-nums; break-inside: avoid; }
-  .ws-grid .one { background: #ddd; color: #666; }
+  /* Browsers drop background colours when printing unless asked, so 1 is shaded with a wide border, which always prints. */
+  .ws-grid .one { position: relative; overflow: hidden; isolation: isolate; color: #555; }
+  .ws-grid .one::before { content: ""; position: absolute; inset: 0; z-index: -1; border-left: 30mm solid #d9d9d9; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   .ws-note { font-size: 9pt; color: #444; margin-top: 4pt !important; }
   .ws-q { break-inside: avoid; margin-bottom: 6pt; }
   .ws-q .line { border-bottom: .75pt solid #000; height: 17pt; }
