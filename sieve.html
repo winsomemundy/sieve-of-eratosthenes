@@ -91,6 +91,7 @@
 .wm-nav__links { list-style: none; display: flex; gap: 22px; margin: 0; padding: 0; flex-wrap: wrap; }
 .wm-nav__links a { color: var(--muted); text-decoration: none; text-transform: uppercase; font-family: var(--font-body); font-size: 0.82rem; letter-spacing: 0.14em; font-weight: 400; }
 .wm-nav__links a:hover { color: var(--gold); }
+.wm-nav__links a[aria-current="page"] { color: var(--gold); }
 .wm-surface a.wm-nav__link { color: var(--muted); text-decoration: none; text-transform: uppercase; font-family: var(--font-body); font-size: 0.82rem; letter-spacing: 0.14em; font-weight: 400; }
 .wm-surface a.wm-nav__link:hover { color: var(--gold); }
 @media (max-width: 760px) {
@@ -111,6 +112,7 @@
 /* Eyebrow */
 .wm-eyebrow { display: flex; align-items: center; gap: 12px; margin: 0 0 var(--stack-sm); color: var(--gold); text-transform: uppercase; }
 .wm-eyebrow::before { content: ""; width: var(--rule-mark); height: var(--hairline); background: var(--gold); flex: none; }
+/* Retired in v1.6.2: kept so older pages don't break; not for new work */
 .wm-eyebrow__bearing { color: var(--muted); letter-spacing: .12em; font-weight: 400; }
 
 /* Impact stat */
