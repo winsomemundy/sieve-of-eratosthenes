@@ -140,9 +140,9 @@ The questions stay on page 1 when the grid is at most 5 rows (n ≤ 50). A grid 
 
 ## Design system conformance
 
-The app must follow the Winsome Mundy design system v1.4.0 and its Tool Page layout, so it looks like the website and the other student tools.
+The app must follow the Winsome Mundy design system v1.6.0 and its Tool Page layout, so it looks like the website and the other student tools.
 
-- **Package.** Load `tokens.css` then `components/bundle.css` from `@winsomemundy/design-system`, pinned to `#v1.4.0`, with `<body class="wm-surface">`. The tool's own CSS loads after them and holds only its additions.
+- **Package.** Load `tokens.css` then `components/bundle.css` from `@winsomemundy/design-system`, pinned to `#v1.6.0`, with `<body class="wm-surface">`. The tool's own CSS loads after them and holds only its additions.
 - **Fonts.** Poppins (500, 600, 700), Jost (300, 400, 500) and Allura from Google Fonts.
 - **Theme.** Dark only: `night` ground, `panel` cards with a 1 px `line` border, square corners, gold and violet as the only accents, `alert` for errors only.
 - **Tool Page frame.** Nav with the "Winsome Mundy" wordmark and a "Student tools" link to winsomemundy.com/#tools; an 860 px column; footer worded exactly "A free student tool by Winsome Mundy. More tools at winsomemundy.com."
