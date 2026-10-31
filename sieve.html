@@ -101,6 +101,11 @@
   .wm-nav__links::-webkit-scrollbar { display: none; }
   .wm-nav__links a { white-space: nowrap; font-size: 0.76rem; }
 }
+/* Five links: tighter spacing so all of them fit a 375px phone */
+@media (max-width: 420px) {
+  .wm-nav__links { gap: 14px; }
+  .wm-nav__links a { letter-spacing: 0.08em; }
+}
 
 /* Button */
 .wm-btn { display: inline-flex; align-items: center; gap: var(--stack-xs); padding: 12px 20px; border-radius: var(--radius-hairline); border: var(--hairline) solid var(--gold); background: var(--gold); color: var(--ink); text-decoration: none; text-transform: uppercase; cursor: pointer; transition: background .2s, color .2s, border-color .2s; }

@@ -7,6 +7,6 @@
     "artifact": "node make-artifact.mjs"
   },
   "dependencies": {
-    "@winsomemundy/design-system": "github:winsomemundy/design-system#v1.7.0"
+    "@winsomemundy/design-system": "github:winsomemundy/design-system#v1.7.2"
   }
 }
