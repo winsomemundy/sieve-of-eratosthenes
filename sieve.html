@@ -542,9 +542,9 @@ html, body { margin: 0; background: var(--night); }
         <button class="wm-btn button" type="submit">Build the sieve</button>
       </div>
       <div class="ws-offer">
-        <button class="wm-btn wm-btn--ghost button" id="print" type="button">Print a worksheet for 50</button>
+        <a class="wm-btn wm-btn--ghost button" id="print" href="https://sieve.winsomemundy.com/?n=50" target="_blank" rel="noopener">Print a worksheet for 50 ↗</a>
         <label for="wsKey"><input id="wsKey" type="checkbox"> Include the answer key</label>
-        <p class="wm-muted">Students sieve the grid by hand. To download it, choose “Save as PDF” in the print window.</p>
+        <p class="wm-muted">Opens the Sieve at sieve.winsomemundy.com on this number, ready to print. Students sieve the grid by hand. To download it, choose “Save as PDF” in the print window.</p>
       </div>
     </form>
 
@@ -684,7 +684,8 @@ document.documentElement.lang = 'en';
     const root = Math.sqrt(n);
     $('limits').textContent = `n = ${fmt(n)} · √n ≈ ${root.toFixed(2).replace(/\.00$/, '')}`;
     const sievers = steps.filter(s => s.t === 'prime').map(s => s.p);
-    $('print').textContent = `Print a worksheet for ${fmt(n)}`;
+    $('print').textContent = `Print a worksheet for ${fmt(n)} ↗`;
+    liveLink();
     $('exFor').textContent = `For n = ${fmt(n)}`;
     $('exCalc').innerHTML =
       `<div class="wm-calc__row"><span>√${fmt(n)}</span><span>≈ ${root.toFixed(2)}</span></div>` +
@@ -856,13 +857,8 @@ document.documentElement.lang = 'en';
     for (let i = 1; i < primes.length; i++) if (primes[i] - primes[i - 1] === 2 && primes[i - 1] !== 3) pairs.push(`${primes[i - 1]} and ${primes[i]}`);
     return pairs.length ? pairs.join('; ') : `None besides 3 and 5`;
   }
-  $('print').onclick = () => {
-    worksheet($('wsKey').checked);
-    const title = document.title;
-    document.title = `Sieve of Eratosthenes worksheet - primes up to ${n}`;
-    window.addEventListener('afterprint', () => { document.title = title; }, { once: true });
-    window.print();
-  };
+  const liveLink = () => { $('print').href = `https://sieve.winsomemundy.com/?n=${n}${$('wsKey').checked ? '&key=1' : ''}`; };
+  $('wsKey').onchange = liveLink;
 
   $('exToggle').onclick = () => {
     const t = $('exToggle'), open = t.getAttribute('aria-expanded') !== 'true';
@@ -892,7 +888,13 @@ document.documentElement.lang = 'en';
     if (!msg) setup(v);
   });
 
-  setup(50);
+  // A link can open the tool on a given number (?n=120), with the worksheet's answer key ticked (&key=1)
+  const params = new URLSearchParams(location.search);
+  const asked = Number(params.get('n'));
+  const first = params.get('n') && Number.isInteger(asked) && asked >= 2 && asked <= MAX ? asked : 50;
+  $('n').value = first;
+  $('wsKey').checked = params.get('key') === '1';
+  setup(first);
 })();
 </script>
 </div>

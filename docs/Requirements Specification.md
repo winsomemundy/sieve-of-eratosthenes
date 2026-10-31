@@ -138,6 +138,10 @@ A key under the grid must name the five main states with matching swatches.
 
 The questions stay on page 1 when the grid is at most 5 rows (n ≤ 50). A grid that fills page 1 sends them to a fresh page, and a grid that runs over several pages lets them follow straight after it. No question splits across pages. With the key, a separate final page lists each answer for this n and all its primes. The print window suggests the file name "Sieve of Eratosthenes worksheet - primes up to n".
 
+**Opening on a number.** A link can start the page on a given n: `?n=120` puts 120 in the input and builds its grid, and adding `&key=1` ticks "Include the answer key". A missing or invalid n (not a whole number from 2 to 1,000) falls back to 50 without an error message.
+
+**Worksheet in the artifact.** The Claude artifact viewer cannot open a print window, so in the artifact the worksheet button is a link, "Print a worksheet for n ↗", that opens sieve.winsomemundy.com in a new tab on the same n and answer-key choice, ready to print. `make-artifact.mjs` makes this swap; `index.html` keeps the print button.
+
 ## Design system conformance
 
 The app must follow the Winsome Mundy design system v1.7.2 and its Tool Page layout, so it looks like the website and the other student tools.
@@ -212,6 +216,7 @@ A release is acceptable when every check below passes; all passed for the build 
 | AC-8 | Step 200 times at n = 1,000. | NF-7 | Under 1 second in total. |
 | AC-9 | Load sieve.winsomemundy.com and the artifact. | NF-10, design system | Both load with no console errors and look the same. |
 | AC-10 | Print the worksheet at n = 50 with the key, and at n = 100 and n = 1,000. | Printable worksheet | 50: one worksheet page plus the key (15 primes; sieved with 2, 3, 5, 7). 100: grid on page 1, questions on page 2. 1,000: questions follow the grid on page 3; key lists 168 primes. |
+| AC-11 | Open sieve.winsomemundy.com/?n=120&key=1, then ?n=5000 and ?n=abc; in the artifact, build 120, tick the key and follow the worksheet link. | Opening on a number, Worksheet in the artifact | 120 is built with the key ticked; the invalid values fall back to 50; the artifact link opens the live Sieve on 120 with the key ticked. |
 
 ## Out of scope and open issues
 

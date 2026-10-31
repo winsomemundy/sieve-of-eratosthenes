@@ -494,7 +494,13 @@ html, body { margin: 0; background: var(--night); }
     if (!msg) setup(v);
   });
 
-  setup(50);
+  // A link can open the tool on a given number (?n=120), with the worksheet's answer key ticked (&key=1)
+  const params = new URLSearchParams(location.search);
+  const asked = Number(params.get('n'));
+  const first = params.get('n') && Number.isInteger(asked) && asked >= 2 && asked <= MAX ? asked : 50;
+  $('n').value = first;
+  $('wsKey').checked = params.get('key') === '1';
+  setup(first);
 })();
 </script>
 </body>
